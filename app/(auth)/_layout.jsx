@@ -1,9 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Stack, useRouter } from "expo-router";
 import { useEffect } from "react";
-import "./global.css";
 
-export default function RootLayout() {
+export default function AuthLayout() {
   const router = useRouter();
 
   useEffect(() => {
@@ -15,10 +14,6 @@ export default function RootLayout() {
     };
     checkAuth();
   }, []);
-  return (
-    <Stack  screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-      <Stack.Screen name="(tabs)" />
-    </Stack>
-  );
+
+  return <Stack screenOptions={{ headerShown: false }} />;
 }
