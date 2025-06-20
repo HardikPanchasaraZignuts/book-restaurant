@@ -2,14 +2,23 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Controller, useForm } from "react-hook-form";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../../components/Input";
 import { Images } from "../../constants/Images";
 import { authSchema } from "../../schemas/authSchema";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export default function Signin() {
   const router = useRouter();
+  const auth = getAuth();
 
   const handleGuest = async () => {
     await AsyncStorage.setItem("isGuest", "true");
@@ -28,8 +37,35 @@ export default function Signin() {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log("Form Data:", data);
+    try {
+      const usercredentials = await signInWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      );
+      const user = usercredentials.user;
+      console.log("🚀 ~ onSubmit ~ user:", user);
+
+      await AsyncStorage.setItem("userEmail", user.email);
+      await AsyncStorage.setItem("isGuest", "false");
+      router.push("/home");
+    } catch (error) {
+      if (error.code === "auth/invalid-credential") {
+        Alert.alert(
+          "Signin Failed!",
+          "Incorrect credentials. Please try again.",
+          [{ text: "OK" }]
+        );
+      } else {
+        Alert.alert(
+          "Sign in Error",
+          "An unexpected error occurred. Please try again later.",
+          [{ text: "OK" }]
+        );
+      }
+    }
   };
   return (
     <SafeAreaView className="bg-secondary flex-1">
@@ -87,9 +123,7 @@ export default function Signin() {
                 onPress={() => router.push("/signup")}
                 className="mt-4 flex-row justify-center items-center"
               >
-                <Text className="text-white font-semibold">
-                  New User?{" "}
-                </Text>
+                <Text className="text-white font-semibold">New User? </Text>
                 <Text className="font-semibold underline text-primary">
                   Sign up
                 </Text>

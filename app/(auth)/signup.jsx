@@ -1,20 +1,24 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
+import { createUserWithEmailAndPassword, getAuth } from 'firebase/auth';
 import { Controller, useForm } from "react-hook-form";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../../components/Input";
+// import { auth } from "../../config/firebseConfig";
 import { Images } from "../../constants/Images";
 import { authSchema } from "../../schemas/authSchema";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function Signup() {
   const router = useRouter();
+  const auth = getAuth();
 
   const handleGuest = async () => {
     await AsyncStorage.setItem("isGuest", "true");
     router.push("/home");
   };
+
 
   const {
     control,
@@ -28,8 +32,35 @@ export default function Signup() {
     },
   });
 
-  const onSubmit = (data) => {
+  const onSubmit = async (data) => {
     console.log("Form Data:", data);
+    try {
+      const usercredentials = await createUserWithEmailAndPassword(
+        auth,
+        data.email,
+        data.password
+      )
+      const user = usercredentials.user;
+      console.log("🚀 ~ onSubmit ~ user:", user)
+
+      await AsyncStorage.setItem("userEmail", user.email);
+      await AsyncStorage.setItem("isGuest", "false");
+      router.push('/home')
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        Alert.alert(
+          "Signup Failed!",
+          "This email address is already in use. Please use a different email.",
+          [{ text: "OK" }]
+        );
+      } else {
+        Alert.alert(
+          "Signup Error",
+          "An unexpected error occurred. Please try again later.",
+          [{ text: "OK" }]
+        );
+      }
+    }
   };
   return (
     <SafeAreaView className="bg-secondary flex-1">

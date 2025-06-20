@@ -3,16 +3,19 @@ import { useLocalSearchParams } from "expo-router";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import {
-    Dimensions,
-    FlatList,
-    Image,
-    Linking,
-    Platform,
-    ScrollView,
-    Text,
-    View,
+  Dimensions,
+  FlatList,
+  Image,
+  Linking,
+  Platform,
+  ScrollView,
+  Text,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import DatePickerComponent from "../../components/restaurant/DatePickerComponent";
+import FindSlots from "../../components/restaurant/FindSlots";
+import GuestPickerComponent from "../../components/restaurant/GuestPickerComponent";
 import { db } from "../../config/firebseConfig";
 import Colors from "../../constants/Colors";
 
@@ -23,8 +26,11 @@ const ResturantDetails = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [restaurantData, setRestaurantData] = useState({});
   const [carouselData, setCarouselData] = useState({});
-  const [slotsData, setSlotsData] = useState({});
-
+  const [slotsData, setSlotsData] = useState([]);
+  
+  const [date, setDate] = useState(new Date());
+  const [selectedNumber, setSelectedNumber] = useState(2);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
   //------- carousel ---------
 
@@ -72,9 +78,8 @@ const ResturantDetails = () => {
     />
   );
 
-
   // -------- data ----------
- 
+
   const getRestaurantData = async () => {
     try {
       const restaurantQuery = query(
@@ -148,7 +153,7 @@ const ResturantDetails = () => {
           : { paddingBottom: 30 },
       ]}
     >
-      <ScrollView className="h-full">
+      <ScrollView className="h-full mx-2">
         <View className="flex-1 my-2 p-2">
           <Text className="text-xl text-primary mr-2 font-semibold">
             {restaurant}
@@ -230,6 +235,53 @@ const ResturantDetails = () => {
               />
             ))}
           </View>
+        </View>
+        <View className="flex-1 flex-row mt-2 py-2 gap-2 items-center">
+          <Ionicons name="location-sharp" size={24} color={Colors.PRIMARY} />
+          <Text className="max-w-[75%] text-white">
+            {restaurantData?.address} | {"  "}
+            <Text
+              onPress={handleLocation}
+              className="underline flex items-center mt-1 text-primary italic font-semibold"
+            >
+              Get Direction
+            </Text>
+          </Text>
+        </View>
+        <View className="flex-1 flex-row mt-2 py-2 gap-2 items-center">
+          <Ionicons name="time" size={24} color={Colors.PRIMARY} />
+          <Text className="max-w-[75%] text-white">
+            {restaurantData?.opening} - {restaurantData?.closing}
+          </Text>
+        </View>
+        <View className="flex-1 mt-2 p-2 rounded-lg border border-primary">
+          <View className="flex-1 flex-row mt-2 p-2 items-center">
+            <View className="flex-1 flex-row items-center">
+              <Ionicons name="calendar" size={24} color={Colors.PRIMARY} />
+              <Text className="text-white mx-2 ">Select booking date</Text>
+            </View>
+            <DatePickerComponent date={date} setDate={setDate} />
+          </View>
+          <View className="items-center flex-1 flex-row mt-2 p-2">
+            <View className="flex-1 flex-row items-center">
+              <Ionicons name="people" size={24} color={Colors.PRIMARY} />
+              <Text className="text-white mx-2 ">Select number of guests</Text>
+            </View>
+            <GuestPickerComponent
+              selectedNumber={selectedNumber}
+              setSelectedNumber={setSelectedNumber}
+            />
+          </View>
+        </View>
+        <View>
+          <FindSlots
+            restaurant={restaurant}
+            date={date}
+            selectedNumber={selectedNumber}
+            slots={slotsData}
+            setSelectedSlot={setSelectedSlot}
+            selectedSlot={selectedSlot}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>

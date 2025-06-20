@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { collection, getDocs, query } from "firebase/firestore";
@@ -13,6 +14,12 @@ export default function Home() {
   const router = useRouter()
   const [restaurants, setRestaurants] = useState([]);
 
+  const temp = async () => {
+    const value = await AsyncStorage.getItem("isGuest");
+    const email = await AsyncStorage.getItem("userEmail");
+    console.log(value, email);
+  };
+
   const getRestaurants = async () => {
     const q = query(collection(db, "restaurants"));
     const res = await getDocs(q);
@@ -24,6 +31,7 @@ export default function Home() {
 
   useEffect(() => {
     getRestaurants();
+    temp()
   }, [])
 
   const renderItem = ({ item }) => (
