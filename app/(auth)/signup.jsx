@@ -33,7 +33,6 @@ export default function Signup() {
   });
 
   const onSubmit = async (data) => {
-    console.log("Form Data:", data);
     try {
       const usercredentials = await createUserWithEmailAndPassword(
         auth,
@@ -41,7 +40,6 @@ export default function Signup() {
         data.password
       )
       const user = usercredentials.user;
-      console.log("🚀 ~ onSubmit ~ user:", user)
 
       await AsyncStorage.setItem("userEmail", user.email);
       await AsyncStorage.setItem("isGuest", "false");
