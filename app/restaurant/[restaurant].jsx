@@ -25,6 +25,9 @@ const ResturantDetails = () => {
   const [carouselData, setCarouselData] = useState({});
   const [slotsData, setSlotsData] = useState({});
 
+
+  //------- carousel ---------
+
   const handleNextImage = () => {
     const carouselLength = carouselData[0]?.images.length;
     if (currentIndex < carouselLength - 1) {
@@ -56,79 +59,22 @@ const ResturantDetails = () => {
   };
 
   const carouselItem = ({ item }) => (
-    <View style={{ width: windowWidth - 2 }} className="h-64 relative">
-      <View
-        style={{
-          position: "absolute",
-          top: "50%",
-          backgroundColor: "rgba(0,0,0,0.6)",
-          borderRadius: 50,
-          padding: 5,
-          zIndex: 10,
-          right: "6%",
-        }}
-      >
-        <Ionicons
-          onPress={handleNextImage}
-          name="arrow-forward"
-          size={24}
-          color="white"
-        />
-      </View>
-      <View
-        style={{
-          position: "absolute",
-          top: "50%",
-          backgroundColor: "rgba(0,0,0,0.6)",
-          borderRadius: 50,
-          padding: 5,
-          zIndex: 10,
-          left: "2%",
-        }}
-      >
-        <Ionicons
-          onPress={handlePrevImage}
-          name="arrow-back"
-          size={24}
-          color="white"
-        />
-      </View>
-      <View
-        style={{
-          position: "absolute",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "row",
-          left: "50%",
-          transform: [{ translateX: -50 }],
-          zIndex: 10,
-          bottom: 15,
-        }}
-      >
-        {carouselData[0].images?.map((_, i) => (
-          <View
-            key={i}
-            className={`bg-white h-2 w-2 ${
-              i == currentIndex && "h-3 w-3"
-            } p-1 mx-1 rounded-full `}
-          />
-        ))}
-      </View>
-      <Image
-        source={{ uri: item }}
-        style={{
-          opacity: 0.5,
-          backgroundColor: "black",
-          marginRight: 20,
-          marginLeft: 5,
-          borderRadius: 25,
-        }}
-        className="h-64"
-      />
-    </View>
+    <Image
+      source={{ uri: item }}
+      style={{
+        width: windowWidth - 2,
+        opacity: 0.5,
+        backgroundColor: "black",
+        borderRadius: 25,
+        marginHorizontal: 5,
+      }}
+      className="h-64"
+    />
   );
 
+
+  // -------- data ----------
+ 
   const getRestaurantData = async () => {
     try {
       const restaurantQuery = query(
@@ -209,7 +155,7 @@ const ResturantDetails = () => {
           </Text>
           <View className="border-b border-primary" />
         </View>
-        <View className="h-64 max-[98%] mx-2 rounded-[25px]">
+        <View className="h-64 mx-2 rounded-[25px] relative overflow-hidden">
           <FlatList
             ref={flatListRef}
             data={carouselData[0]?.images}
@@ -219,6 +165,71 @@ const ResturantDetails = () => {
             showsHorizontalScrollIndicator={false}
             style={{ borderRadius: 25 }}
           />
+
+          {/* Right Arrow */}
+          <View
+            style={{
+              position: "absolute",
+              top: "50%",
+              right: 16,
+              transform: [{ translateY: -12 }],
+              backgroundColor: "rgba(0,0,0,0.6)",
+              borderRadius: 50,
+              padding: 6,
+              zIndex: 10,
+            }}
+          >
+            <Ionicons
+              onPress={handleNextImage}
+              name="arrow-forward"
+              size={24}
+              color="white"
+            />
+          </View>
+
+          {/* Left Arrow */}
+          <View
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: 16,
+              transform: [{ translateY: -12 }],
+              backgroundColor: "rgba(0,0,0,0.6)",
+              borderRadius: 50,
+              padding: 6,
+              zIndex: 10,
+            }}
+          >
+            <Ionicons
+              onPress={handlePrevImage}
+              name="arrow-back"
+              size={24}
+              color="white"
+            />
+          </View>
+
+          {/* Dots Indicator */}
+          <View
+            style={{
+              position: "absolute",
+              bottom: 10,
+              left: 0,
+              right: 0,
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              zIndex: 10,
+            }}
+          >
+            {carouselData[0]?.images?.map((_, i) => (
+              <View
+                key={i}
+                className={`bg-white h-2 w-2 mx-1 rounded-full ${
+                  i == currentIndex ? "h-2 w-6" : ""
+                }`}
+              />
+            ))}
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
